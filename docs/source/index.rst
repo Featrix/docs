@@ -1,10 +1,11 @@
-Welcome to Lumache's documentation!
-===================================
+Welcome to Featrix!
+===================
 
-**Lumache** (/lu'make/) is a Python library for cooks and food lovers
-that creates recipes mixing random ingredients.
-It pulls data from the `Open Food Facts database <https://world.openfoodfacts.org/>`_
-and offers a *simple* and *intuitive* API.
+**Featrix** is a data gateway to enable ML models for structured data. Featrix comes with a Python client library for ML engineers and data scientists to work witn any structured data source, including Pandas dataframe objects. Featrix is powered by a hosted SaaS or enterprises can deploy on site in their private clouds with an enterprise license.
+
+
+Featrix is currently in private beta with select customers. Sign up for our waitlist at `featrix.ai <https://www.featrix.ai/>`.
+
 
 Check out the :doc:`usage` section for further information, including
 how to :ref:`installation` the project.
