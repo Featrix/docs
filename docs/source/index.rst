@@ -6,7 +6,7 @@ Welcome to Featrix!
 
 Featrix is currently in private beta with select customers. 
 
-Sign up for our waitlist at `featrix.ai <https://www.featrix.ai/>`_.
+Sign up for our waitlist at `featrix.ai <https://featrix.ai/>`_.
 
 
 Check out the :doc:`usage` section for further information, including
