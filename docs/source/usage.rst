@@ -31,79 +31,63 @@ What's Included
 The ``featrix-client`` package includes a few key modules:
 
 +-------------------+-----------------------------------------------------------+
-| ``embedit``       | A set of classes for encoding and decoding embeddings.    |
-+-------------------+-----------------------------------------------------------+
 | ``networkclient`` | A `FeatrixTransformerClient` for                          |
 |                   | accessing a Featrix embedding service.                    |
 +-------------------+-----------------------------------------------------------+
 | ``graphics``      | A set of functions for plotting embedding similarity.     |
+++------------------+-----------------------------------------------------------+
+| ``utils``         | A set of functions for working with data that we have     |
+|                   | found to be useful.                                       |
 +-------------------+-----------------------------------------------------------+
-
-
 
 Working with Data
 -----------------
-
 
 
 .. code-block:: python
 
     import featrixclient as ft
     import pandas as pd
-    df = pd.read_csv(path or url)
+    df = pd.read_csv(path_to_your_file)
 
-Send the data to Featrix
-^^^^^^^^^^^^^^^^^^^^^^^^
+Train a vector space and a model
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can train multiple models on a single vector space.
+
+Check out our [live Google Colab demo notebooks](https://featrix.ai/demo) for examples. The general approach is as follows:
+
 
 .. code-block:: python
 
-    df = ... # get a Pandas dataframe from somewhere, e.g., read_csv.
+    # Split the data
+    df_train, df_test = train_test_split(df, test_size=0.25)
 
-    try:
-        featrixClient = ft.FeatrixTransformerClient(protocol="http",
-                                                    host="embedding.featrix.com",
-                                                    port="8080")
+    # Connect to the Featrix server. This can be deployed on prem with Docker
+    # or Featrix’s public cloud.
+    featrix = ft.Featrix("http://embedding.featrix.com:8080")
 
-        sendResult = featrixClient.send_data(df)
-    except FeatrixDataException, e:
-        print("Error:", e)
+    # Here we create a new vector space and train it on the data.
+    vector_space_id = featrix.EZ_NewVectorSpace(df_train)
+
+    # We can create multiple models within a single vector space.
+    # This lets us re-use representations for different predictions
+    # without retraining the vector space.
+    # Note, too, that you could train the model on a different training
+    # set than the vector space, if you want to zero in on something
+    # for a specific model.
+    model_id = featrix.EZ_NewModel(vector_space_id, 
+                                   "Target_column",
+                                    df_train)
+
+    # Run predictions
+    result = featrix.EZ_PredictionOnDataFrame(vector_space_id,
+                                              Model_id,
+                                              "Target_column",
+                                              df_test)
+
+    # Now result is a list of classifications in the same symbols 
+    # as the target column
 
 
-Get the embeddings back from Featrix
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-    
-    try:
-        embeddings, encoders = featrixClient.wait_for_embeddings(sendResult,
-                                                                 max_timeout=1200)
-    except FeatrixDataException, e:
-        print("Error:", e)
-
-
-At this point, `embeddings` and `encoders` will contain the representations for the data.
-
-
-
-
-..
-    Creating recipes
-    ----------------
-
-    To retrieve a list of random ingredients,
-    you can use the ``lumache.get_random_ingredients()`` function:
-
-    .. autofunction:: lumache.get_random_ingredients
-
-    The ``kind`` parameter should be either ``"meat"``, ``"fish"``,
-    or ``"veggies"``. Otherwise, :py:func:`lumache.get_random_ingredients`
-    will raise an exception.
-
-    .. autoexception:: lumache.InvalidKindError
-
-    For example:
-
-    >>> import lumache
-    >>> lumache.get_random_ingredients()
-    ['shells', 'gorgonzola', 'parsley']
 

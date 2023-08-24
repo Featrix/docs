@@ -1,10 +1,13 @@
 # Configuration file for the Sphinx documentation builder.
+import os
+import sys
+sys.path.append(".")
 
 # -- Project information
 
 project = 'Featrix'
-copyright = '2023, Featrix, Inc.'
-author = 'Featrix'
+copyright = '2023, Featrix, Inc'
+author = 'Featrix, Inc'
 
 release = '0.1'
 version = '0.1.0'
@@ -27,6 +30,14 @@ napoleon_include_init_with_doc = True
 # napoleon_include_special_with_doc = True
 #
 # other stuff documented here - https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
+
+autodoc_default_options = {
+    'member-order': 'bysource',
+    'special-members': '__init__',
+    'undoc-members': None,
+    'exclude-members': '__weakref__'
+}
+
 
 
 intersphinx_mapping = {
