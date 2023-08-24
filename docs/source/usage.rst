@@ -90,3 +90,61 @@ Check out our `live Google Colab demo notebooks <https://featrix.ai/demo>` for e
 
 
 
+Predicting on a probability distribution
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We can specify a few characteristics of an object and ask for the target field probability distribution. For example, in our mortgage loan demo, we might ask "what are the chances someone who is married will be approved for a loan?"
+
+
+    >>> # result_married_only
+    >>> featrix.EZ_Prediction(vector_space_id, model_id, {"Married": "Yes"})
+    {'<UNKNOWN>': 0.0011746988166123629, 'N': 0.33159884810447693, 'Y': 0.6672264933586121}
+    
+We can pass in multiple criteria:
+
+    >>> # result_married_and_not_graduate
+    >>> featrix.EZ_Prediction(vector_space_id, model_id, {"Education": "Not Graduate", "Married": "Yes"})
+    {'<UNKNOWN>': 0.003182089189067483, 'N': 0.5865148305892944, 'Y': 0.41030314564704895}
+    
+
+Classifying records
+^^^^^^^^^^^^^^^^^^^
+
+We can determine a category an object belongs to. Typically we'll pass in a list of objects and get back a vector of which class each object targets. Featrix includes an `EZ_PredictionOnDataFrame` call to facilitate passing objects in bulk.
+
+The interface is similar to sklearn's clf.predict() functions. The target column is specified to ensure it is removed from the query dataframe before passing to the model, if it is present.
+
+    >>> featrix.EZ_PredictionOnDataFrame(vector_space_id,
+                                          model_id,
+                                          "Loan_Status",        # target column name
+                                          query_df)
+     ['Y' 'Y' 'Y' 'Y' 'Y' 'N' 'Y' 'Y' 'N' 'Y' 'Y' 'Y' 'Y' 'Y' 'N' 'Y' 'Y' 'Y'
+      'Y' 'Y' 'N' 'Y' 'Y' 'Y' 'Y' 'Y' 'N' 'Y' 'N' 'Y' 'Y' 'N' 'Y' 'Y' 'N' 'N'
+      'N' 'Y' 'N' 'Y' 'Y' 'Y' 'N' 'Y' 'Y' 'N' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y'
+      'Y' 'Y' 'N' 'Y' 'Y' 'N' 'Y' 'N' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y'
+      'Y' 'Y' 'N' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y'
+      'Y' 'Y' 'N' 'Y' 'Y' 'N' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'N' 'Y' 'Y' 'Y' 'Y'
+      'Y' 'Y' 'Y' 'Y' 'N' 'Y' 'Y' 'N' 'Y' 'Y' 'Y' 'Y' 'Y' 'N' 'Y' 'Y' 'Y' 'Y'
+      'Y' 'N' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'N' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y'
+      'N' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'N' 'Y' 'Y'
+      'Y' 'Y' 'Y' 'Y' 'N' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y' 'Y'
+      'Y' 'Y' 'Y' 'Y' 'Y']
+
+
+Note that we can use the usual sklearn functions to test accuracy, precision, and recall.
+
+    >>> from sklearn.metrics import precision_score, recall_score, accuracy_score
+    >>> result = # query from above
+    >>> accuracy_score(df_test_loan_status, result)
+    0.827027027027027
+    >>> precision_score(df_test_loan_status, result, pos_label="Y")
+    0.802547770700637
+    >>> recall_score(df_test_loan_status, result, pos_label="Y")
+    0.992125984251968
+
+
+Regression
+^^^^^^^^^^
+
+Prediction on a continuous variable works in the same way as a query on a categorical variable.
+
