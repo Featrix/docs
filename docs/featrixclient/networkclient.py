@@ -14,7 +14,7 @@ import time
 import traceback
 import uuid
 
-#import pandas as pd
+import pandas as pd
 import requests
 
 import sys
@@ -22,9 +22,9 @@ import sys
 from unittest import mock
 
 # Mock open3d because it fails to build in readthedocs
-MOCK_MODULES = ["pd"]
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = mock.Mock()
+#MOCK_MODULES = ["pd"]
+#for mod_name in MOCK_MODULES:
+#    sys.modules[mod_name] = mock.Mock()
 
 __version__ = "<no version information available>"
 
