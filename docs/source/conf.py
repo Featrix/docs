@@ -1,6 +1,9 @@
 # Configuration file for the Sphinx documentation builder.
 import os
 import sys
+print("sys.path...", sys.path)
+print("os.cwd = ", os.getcwd())
+
 sys.path.append("docs")
 
 # -- Project information
