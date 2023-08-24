@@ -4,7 +4,7 @@ import sys
 print("sys.path...", sys.path)
 print("os.cwd = ", os.getcwd())
 
-sys.path.append("docs")
+sys.path.append("../")
 
 # -- Project information
 
