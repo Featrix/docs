@@ -14,15 +14,14 @@ Usage
 Installation
 ------------
 
-To use Featrix, first install it using pip:
+To use Featrix, first install the client using pip:
 
 .. code-block:: console
 
-   $ pip install featrix-client 
+   $ pip install featrix-client     # Coming soon. 
 
 
-We provide live demo notebooks with real data; please email mitch@featrix.ai if you'd like to check them out. We will post them publicly as we make more progress.
-
+You'll also need a Featrix server; you can run the enterprise edition on-site in your environment or use our hosted SaaS.
 
 
 What's Included
@@ -55,7 +54,7 @@ Train a vector space and a model
 
 You can train multiple models on a single vector space.
 
-Check out our [live Google Colab demo notebooks](https://featrix.ai/demo) for examples. The general approach is as follows:
+Check out our `live Google Colab demo notebooks <https://featrix.ai/demo>` for examples. The general approach is as follows:
 
 
 .. code-block:: python
