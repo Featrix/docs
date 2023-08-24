@@ -17,6 +17,8 @@ import uuid
 #import pandas as pd
 import requests
 
+import sys
+
 from unittest import mock
 
 # Mock open3d because it fails to build in readthedocs
