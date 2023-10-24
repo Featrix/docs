@@ -359,10 +359,17 @@ class Featrix:
 
         Parameters
         ----------
-        data_space_id
-        path - either use this for the dataframe `df` but not both.
-        label - this is the label for the file that will be used in this data space.
-        on_bad_lines - this is passed to pandas pd.read_csv without editing. 'skip' will ignore the bad lines; 'error' will stop loading and fail if there are bad lines. In the current software, passing 'warn' will not get returned to the API client (we need to fix this).
+        data_space_id : str
+            the name of the data space.
+
+        path : str
+            either use this for the dataframe `df` but not both.
+
+        label :
+            this is the label for the file that will be used in this data space.
+
+        on_bad_lines
+            this is passed to pandas pd.read_csv without editing. 'skip' will ignore the bad lines; 'error' will stop loading and fail if there are bad lines. In the current software, passing 'warn' will not get returned to the API client (we need to fix this).
 
         Notes
         -----
