@@ -229,6 +229,84 @@ class Featrix:
         """
         pass
 
+    def EZ_EmbedRecords(self,
+                        vector_space_id: str,
+                        records=None,
+                        #                        dictList: [dict] = None,
+                        colList: [list] = None):
+        """
+        Embed new records. You can use this to test embeddings for new data that isn't trained in the vector space
+        (or that is); you can pass partial records, the sky is the limit.
+
+        This does not edit the vector space.
+
+        Parameters
+        ----------
+        vector_space_id: str
+            The vector space to use.
+
+        records:
+            This can be a dataframe or a list of dictionaries.
+
+            The keys in the dictionary need to be column names from the embedding space (which you can query with
+            `EZ_VectorSpaceEmbeddedColumns()`.
+
+        colList:
+            A list of keys. You can use this to pass only some of the fields in the records argument without
+            having to manually drop or reduce the data.
+        """
+        pass
+
+
+    def EZ_EmbeddingsDistance(self, vector_space_id, col1, col2, col1_range=None, col2_range=None, col1_steps=None, col2_steps=None):
+        """
+        Given two columns in a vector space, get the cosine distance between their embeddings for
+        plotting a heatmap.
+
+        Parameters
+        ----------
+        vector_space_id : str
+            The string uuid name of the vector space from `EZ_NewVectorSpace()` or `EZ_DataSpaceNewVectorSpace()`
+        col1 : str
+            Name of the first column
+        col2 : str
+            Name of the second column. Can be the same name as `col1` for comparing the column to itself.
+        col1_range:
+            optional, tuple of min and max values. (Scalars only)
+        col2_range:
+            optional, tuple of min and max values. (Scalars only)
+        col1_steps:
+            optional, number of steps to sample within col1_range. (Scalars only)
+        col2_steps:
+            optional, number of steps to sample within col2_range. (Scalars only)
+
+        Returns
+        -------
+        a tuple containing:
+            Similarity matrix - the cosine difference of the embeddings to each other.
+            col1_members - labels for the col1 dimension of the similarity matrix
+            col2_members - labels for the col2 dimension of the similarity matrix
+
+        Notes
+        -----
+        We provide plot helper functions for matplotlib in graphics.py in this package.
+        """
+        pass
+
+    def EZ_RemoveVectorSpace(self, vector_space_id: str, force:bool = False):
+        """
+        Removes a vector space, if it exists. No error if it does not exist.
+
+        Parameters
+        ----------
+        vector_space_id: str
+            Id of the vector space.
+
+        force: bool
+            If set to True, will kill a training process if the vector space is currently training.
+
+        """
+
     def EZ_VectorSpaceNearestNeighbors(self,
                                        vector_space_id:str,
                                        query: dict,
@@ -268,7 +346,7 @@ class Featrix:
 
             Note that this implementation does *not* split the data into equal sized k groups.
 
-        colList:
+        colList: [str]
             The column names to cluster on.
 
             NOTE: The current release supports just one column. This will be fixed ASAP.
@@ -347,7 +425,9 @@ class Featrix:
                                  path: str=None,
                                  label: str=None,
                                  df: pd.DataFrame=None,
-                                 on_bad_lines: str='warn'):
+                                 on_bad_lines: str='warn',
+                                 sample_percentage: float=None,
+                                 sample_row_count: int=None):
         """
         Copy a file or dataframe to the Featrix server if the file does not exist
 
@@ -365,11 +445,18 @@ class Featrix:
         path : str
             either use this for the dataframe `df` but not both.
 
-        label :
+        label : str
             this is the label for the file that will be used in this data space.
 
-        on_bad_lines
+        on_bad_lines: str
             this is passed to pandas pd.read_csv without editing. 'skip' will ignore the bad lines; 'error' will stop loading and fail if there are bad lines. In the current software, passing 'warn' will not get returned to the API client (we need to fix this).
+
+        sample_percentage: float.
+            Take a percentage of the rows at random for training the vector. The sample will be captured at the time
+            the vector space is trained; in other words, which part of the data is sampled will change on every training.
+
+        sample_row_count: int
+            Take an absolute number of rows. Cannot be used with `sample_percentage`.
 
         Notes
         -----
