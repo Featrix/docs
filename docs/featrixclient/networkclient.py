@@ -207,8 +207,8 @@ class Featrix:
 
         You can query the training history and loss by checking the structure returned from `EZ_VectorSpaceMetaData()`.
 
-        Params
-        ------
+        Parameters
+        ----------
         vector_space_id: str
             Id of the vector space.
 
@@ -308,9 +308,6 @@ class Featrix:
             optional, number of steps to sample within col1_range. (Scalars only)
         col2_steps:
             optional, number of steps to sample within col2_range. (Scalars only)
-
-        axis_label_precision:
-            Amount of precision to round floating labels to.
 
         Returns
         -------
@@ -629,8 +626,8 @@ class Featrix:
                 .                       .                         .                                       .
                 .                       .                         .                                       .
 
-        Params
-        ------
+        Parameters
+        ----------
         data_space_id: str
             the id returned from `EZ_DataSpaceCreate`
 
