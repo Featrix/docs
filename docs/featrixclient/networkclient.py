@@ -132,7 +132,7 @@ class Featrix:
 
         Returns
         -------
-        A Featrix object ready to embed!
+        A Featrix object ready for embedding data.
         """
         pass
 
@@ -141,7 +141,9 @@ class Featrix:
                           csv_path: str = None,
                           vector_space_id:str = None,
                           on_bad_lines: str = 'skip',
-                          ignore_cols=None
+                          ignore_cols=None,
+                          epochs=None,
+                          learning_rate=None
                           ):
         """
         Create a new vector space on a dataframe. The dataframe should include
@@ -172,6 +174,12 @@ class Featrix:
             List of columns to ignore when training. If a column is specified that is not found in
             the dataframe, an exception is raised.
 
+        epochs: int or None
+            Number of epochs to train on. Eventually this will support 'auto'.
+
+        learning_rate: float or None
+            Learning rate. Eventually this will support 'auto'.
+
         Returns
         -------
         str uuid of the vector space (which we call vector_space_id on other calls)
@@ -189,6 +197,28 @@ class Featrix:
         """
         pass
 
+
+    def EZ_VectorSpaceContinueTraining(self,
+                                       vector_space_id: str,
+                                       n_epochs:int,
+                                       learning_rate:float=0.01):
+        """
+        Continue training the vector space.
+
+        You can query the training history and loss by checking the structure returned from `EZ_VectorSpaceMetaData()`.
+
+        Params
+        ------
+        vector_space_id: str
+            Id of the vector space.
+
+        epochs: int
+            Number of epochs.
+
+        learning_rate: float
+            Learning rate. 0.01 is the default.
+        """
+        
     def EZ_VectorSpaceMetaData(self, vector_space_id):
         """
         Get metadata for the specified vector space.
@@ -232,7 +262,6 @@ class Featrix:
     def EZ_EmbedRecords(self,
                         vector_space_id: str,
                         records=None,
-                        #                        dictList: [dict] = None,
                         colList: [list] = None):
         """
         Embed new records. You can use this to test embeddings for new data that isn't trained in the vector space
@@ -279,6 +308,9 @@ class Featrix:
             optional, number of steps to sample within col1_range. (Scalars only)
         col2_steps:
             optional, number of steps to sample within col2_range. (Scalars only)
+
+        axis_label_precision:
+            Amount of precision to round floating labels to.
 
         Returns
         -------
@@ -427,7 +459,8 @@ class Featrix:
                                  df: pd.DataFrame=None,
                                  on_bad_lines: str='warn',
                                  sample_percentage: float=None,
-                                 sample_row_count: int=None):
+                                 sample_row_count: int=None,
+                                 drop_duplicates: bool=True):
         """
         Copy a file or dataframe to the Featrix server if the file does not exist
 
@@ -458,9 +491,18 @@ class Featrix:
         sample_row_count: int
             Take an absolute number of rows. Cannot be used with `sample_percentage`.
 
+        drop_duplicates: bool
+            Ignore duplicate rows. True by default. The dropping will occur *before* sampling.
+
         Notes
         -----
         Files are compared with a local md5 hash and a remote md5 hash before deciding to transmit the file.
+
+        File hashes happen on the entire file; the data file is not sampled or de-duplicated prior to training a vector
+        space. In other words, the sampling and de-duplication parameters are intended for convenience and not to save
+        bandwidth or storage. We are open to feedback on this behavior. One implication is that samples will vary across
+        trainings.
+
         No partial copies are supported.
         """
         pass
@@ -620,8 +662,9 @@ class Featrix:
     def EZ_NewModel(self,
                     vector_space_id:str,
                     target_column_name:str,
-                    df:pd.DataFrame,
-                    modelSize:str = 'auto'):
+                    df:pd.DataFrame | list[pd.DataFrame],
+                    n_epochs:int = 25,
+                    size:str = 'small'):
         """
         Create a new model in a given vector space.
 
@@ -629,21 +672,33 @@ class Featrix:
         ----------
         vector_space_id : str
             The string uuid name of the vector space from `EZ_NewVectorSpace()` or `EZ_DataSpaceNewVectorSpace()`
+
         target_column_name : str
-            Name of the target column. Needs to be present in the passed DataFrame `df`
-        df : pd.DataFrame
+            Name of the target column. Must be present in the passed DataFrame `df` or the passed DataFrame dictionary after mapping.
+
+        df : pd.DataFrame | list[pd.DataFrame]
             The dataframe with both the input and target values. This can be the same as the dataframe
             used to train the vector space.
-        epochs: int
+
+            For vector spaces created from joined data in data spaces, this can be a list of data frames
+            to train the model.
+
+        n_epochs: int
             Number of epochs to train on.
+
         modelSize: str
-            Can be 'auto', 'small', 'large'
-            For models that run in the Featrix server, 'small' is a 2 hidden layer model with 25 dimensions.
+            Can be 'small', 'large'
+            For models that run in the Featrix server, 'small' is a 2 hidden layer model with 50 dimensions.
             'large' is a 6 layer model with 50 dimensions.
 
         Returns
         -------
         str uuid of the model (which we call model_id on other calls)
+
+        Raises
+        ------
+        FeatrixVectorSpaceNotFound
+            if the vector space specified does not exist.
 
         Notes
         -----
@@ -656,7 +711,7 @@ class Featrix:
 
         And pass the all_df to `EZ_NewModel`
         """
-        pass
+
 
     def EZ_DetectEncoders(self,
                           df: pd.DataFrame = None,
@@ -720,7 +775,6 @@ class Featrix:
         -------
         A dictionary of values of the model's target_column and the probability of each of those values occurring.
         """
-        pass
 
     def EZ_PredictionOnDataFrame(
         self,
@@ -745,6 +799,7 @@ class Featrix:
         target_column: str
             The target to remove from the dataframe, if it is present.
             `None` will default to the target column of the model.
+
         df: pd.DataFrame
             The dataframe to run our queries on.
         include_probabilities: bool, default False
@@ -760,8 +815,68 @@ class Featrix:
         Returns
         -------
         A list of predictions in the symbols of the original target.
+
+        Notes
+        -----
+        In this version of the API, queries are for categorical values only.
         """
 
         pass
 
+    def EZ_PlotLoss(self, vector_space_id=None,
+                    model_id=None):
+        """
+        Show a matplotlib plot of the loss on training the vector_space_id or the model_id.
 
+        If the model_id is specified, the vector_space_id must also be specified.
+        """
+
+
+    def EZ_PlotEmbeddings(self,
+                          vector_space_id,
+                          col1_name,
+                          col2_name=None,
+                          col1_range=None,
+                          col2_range=None,
+                          col1_steps=None,
+                          col2_steps=None,
+                          relative_scale=False,
+                          axis_label_precision=5,
+                          show_unknown=False):
+        """
+        Plot similarity plots of embeddings in the vector space.
+
+        Parameters
+        ----------
+        vector_space_id: str
+            The vector space
+
+        col1_name: str
+            The first field in the vector space to plot.
+
+        col2_name: str
+            This can be specified to show the similarity of embeddings between two columns.
+            If this is NOT specified, then this will produce a self-similarity plot of col1_name vs col1_name itself.
+
+        col1_range: (min, max) tuple
+            Range of values, used if col1 is a scalar. Default is mean ± 2 * std.
+
+        col2_range: (min, max) tuple
+            Range of values, used if col2 is a scalar. Default is mean ± 2 * std.
+
+        col1_steps: int
+            Number of steps to sample across col1_range, if col1 is a scalar.
+
+        col2_steps: int
+            Number of steps to sample across col2_range, if col2 is a scalar.
+
+        relative_scale: bool
+            If true, a relative scale will be used. Defaults to False; the default scale is [-1, 1].
+
+        axis_label_precision: int
+            The number of decimal places to show the scalar axis labels. Set to 0 to round to integers.
+
+        show_unknown: bool
+            Show the <UNKNOWN> token for sets. The unknown is a special value used when embedding sets, which provides
+            a lot of power to Featrix, but it can make for some confusing visualizations.
+        """
